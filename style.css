@@ -1,0 +1,22 @@
+.pane.pane-sm {
+  max-width: 300px;
+}
+.selected-package {
+  display: none;
+}
+.selected-package.selected {
+  display: block;
+}
+.p {
+  padding: 15px;
+}
+.m {
+  margin: 15px;
+}
+h4.package-name {
+  margin-top: 0;
+}
+.precode {
+  border: 1px solid #d0d0d0;
+  height: calc(100% - 70px);
+}
