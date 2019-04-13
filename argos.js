@@ -7,66 +7,54 @@ exec('lerna ls', (error, stdout, stderr) => {
   } else {
     const packages = stdout.split('\n');
     packages.pop();
-    const container = document.getElementsByClassName('nav-group')[0];
+    const container = document.querySelector('.nav-group');
     packages.map((i, index) => {
       const d = div(`.nav-group-item.package-${index}`, [i]);
       d.addEventListener('click', (e) => selectPackage(index, e));
       container.appendChild(d);
-      const s = document.getElementsByClassName('packages-detail')[0];
+      const s = document.querySelector('.packages-detail');
       createPackageDetail(s, i, index);
     });
   }
 });
 
 function selectPackage(i, e) {
-  const list = document.getElementsByClassName('packages-list')[0];
-  const currList = list.getElementsByClassName('active')[0];
+  const list = document.querySelector('.packages-list');
+  const currList = list.querySelector('.active');
   if (currList) {
     currList.classList.remove('active');
   }
-  list.getElementsByClassName(`package-${i}`)[0].classList.add('active');
+  list.querySelector(`.package-${i}`).classList.add('active');
 
-  const detail = document.getElementsByClassName('packages-detail')[0];
-  const currDetail = detail.getElementsByClassName('active')[0];
+  const detail = document.querySelector('.packages-detail');
+  const currDetail = detail.querySelector('.active');
   if (currDetail) {
     currDetail.classList.remove('active');
   }
-  detail.getElementsByClassName(`package-${i}`)[0].classList.add('active');
+  detail.querySelector(`package-${i}`).classList.add('active');
 }
 
 function buildUp(package, index) {
   cleanPre(index);
-  const precode = document
-    .getElementsByClassName('packages-detail')[0]
-    .getElementsByClassName(`package-${index}`)[0]
-    .getElementsByClassName('precode')[0];
+  const precode = document.querySelector(`.packages-detail .package-${index} .precode`);
   launchCommand('lerna.cmd', ['run', 'build', `--scope=${package}`, '--include-filtered-dependants'], precode);
 }
 
 function build(package, index) {
   cleanPre(index);
-  const precode = document
-    .getElementsByClassName('packages-detail')[0]
-    .getElementsByClassName(`package-${index}`)[0]
-    .getElementsByClassName('precode')[0];
+  const precode = document.querySelector(`.packages-detail .package-${index} .precode`);
   launchCommand('lerna.cmd', ['run', 'build', `--scope=${package}`], precode);
 }
 
 function buildDown(package, index) {
   cleanPre(index);
-  const precode = document
-    .getElementsByClassName('packages-detail')[0]
-    .getElementsByClassName(`package-${index}`)[0]
-    .getElementsByClassName('precode')[0];
+  const precode = document.querySelector(`.packages-detail .package-${index} .precode`);
   launchCommand('lerna.cmd', ['run', 'build', `--scope=${package}`, '--include-filtered-dependencies'], precode);
 }
 
 function start(package, index) {
   cleanPre(index);
-  const precode = document
-    .getElementsByClassName('packages-detail')[0]
-    .getElementsByClassName(`package-${index}`)[0]
-    .getElementsByClassName('precode')[0];
+  const precode = document.querySelector(`.packages-detail .package-${index} .precode`);
   launchCommand('lerna.cmd', ['run', 'start', `--scope=${package}`], precode);
 }
 
@@ -87,10 +75,7 @@ function launchCommand(command, params, logPlaceholder) {
 }
 
 function cleanPre(index) {
-  const precode = document
-    .getElementsByClassName('packages-detail')[0]
-    .getElementsByClassName(`package-${index}`)[0]
-    .getElementsByClassName('precode')[0];
+  const precode = document.getElementsByClassName(`.packages-detail .package-${index} .precode`);
   precode.textContent = '';
 }
 
