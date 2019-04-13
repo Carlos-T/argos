@@ -20,3 +20,9 @@ h4.package-name {
   border: 1px solid #d0d0d0;
   height: calc(100% - 70px);
 }
+.package {
+  display: none;
+}
+.package.active {
+  display: block;
+}

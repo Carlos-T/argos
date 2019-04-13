@@ -23,11 +23,13 @@ function createElement(tag, modifiers, children) {
       }
     }
   }
-  for(let i of children) {
-    if (i instanceof HTMLElement) {
-      element.appendChild(i);
-    } else {
-      element.textContent = i;
+  if (children) {
+    for(let i of children) {
+      if (i instanceof HTMLElement) {
+        element.appendChild(i);
+      } else {
+        element.innerText = i;
+      }
     }
   }
   return element;

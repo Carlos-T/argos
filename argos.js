@@ -1,111 +1,126 @@
-// const  = require('child_process');
 const { shell } = require('electron');
-const { div } = require('./naive');
+const { div, createElement } = require('./naive');
 const { exec, spawn } = require('child_process');
-// const Photon = require('electron-photon');
 
 exec('lerna ls', (error, stdout, stderr) => {
   if (error) {
-    console.log('error', error);
-    console.log('stderr', stderr);
   } else {
     const packages = stdout.split('\n');
     packages.pop();
     const container = document.getElementsByClassName('nav-group')[0];
-    packages.map(i => {
-      const d = div('.nav-group-item', [i]);
-      d.addEventListener('click', (e) => selectPackage(i, e));
+    packages.map((i, index) => {
+      const d = div(`.nav-group-item.package-${index}`, [i]);
+      d.addEventListener('click', (e) => selectPackage(index, e));
       container.appendChild(d);
+      const s = document.getElementsByClassName('packages-detail')[0];
+      createPackageDetail(s, i, index);
     });
   }
 });
 
 function selectPackage(i, e) {
-  const curr = document.getElementsByClassName('active')[0];
-  if (curr) {
-    curr.classList.remove('active');
+  const list = document.getElementsByClassName('packages-list')[0];
+  const currList = list.getElementsByClassName('active')[0];
+  if (currList) {
+    currList.classList.remove('active');
   }
-  e.target.classList.add('active');
-  const s = document.getElementsByClassName('selected-package')[0];
-  s.classList.add('selected');
-  s.getElementsByClassName('package-name')[0].textContent = i;
-  s.getElementsByClassName('build-up')[0].addEventListener('click', () => buildUp(i));
-  s.getElementsByClassName('build')[0].addEventListener('click', () => build(i));
-  s.getElementsByClassName('build-down')[0].addEventListener('click', () => buildDown(i));
-  cleanPre();
+  list.getElementsByClassName(`package-${i}`)[0].classList.add('active');
+
+  const detail = document.getElementsByClassName('packages-detail')[0];
+  const currDetail = detail.getElementsByClassName('active')[0];
+  if (currDetail) {
+    currDetail.classList.remove('active');
+  }
+  detail.getElementsByClassName(`package-${i}`)[0].classList.add('active');
 }
 
-function buildUp(i) {
-  cleanPre()
-  const bu = spawn('lerna.cmd', ['run', 'build', `--scope=${i}`, '--include-filtered-dependants']);
-  const precode = document.getElementsByClassName('precode')[0];
+function buildUp(package, index) {
+  cleanPre(index);
+  const precode = document
+    .getElementsByClassName('packages-detail')[0]
+    .getElementsByClassName(`package-${index}`)[0]
+    .getElementsByClassName('precode')[0];
+  launchCommand('lerna.cmd', ['run', 'build', `--scope=${package}`, '--include-filtered-dependants'], precode);
+}
+
+function build(package, index) {
+  cleanPre(index);
+  const precode = document
+    .getElementsByClassName('packages-detail')[0]
+    .getElementsByClassName(`package-${index}`)[0]
+    .getElementsByClassName('precode')[0];
+  launchCommand('lerna.cmd', ['run', 'build', `--scope=${package}`], precode);
+}
+
+function buildDown(package, index) {
+  cleanPre(index);
+  const precode = document
+    .getElementsByClassName('packages-detail')[0]
+    .getElementsByClassName(`package-${index}`)[0]
+    .getElementsByClassName('precode')[0];
+  launchCommand('lerna.cmd', ['run', 'build', `--scope=${package}`, '--include-filtered-dependencies'], precode);
+}
+
+function start(package, index) {
+  cleanPre(index);
+  const precode = document
+    .getElementsByClassName('packages-detail')[0]
+    .getElementsByClassName(`package-${index}`)[0]
+    .getElementsByClassName('precode')[0];
+  launchCommand('lerna.cmd', ['run', 'start', `--scope=${package}`], precode);
+}
+
+function launchCommand(command, params, logPlaceholder) {
+  const bu = spawn(command, params);
   bu.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
     var string = new TextDecoder("utf-8").decode(data);
-    console.log('<<<', string);
-    precode.textContent = precode.textContent + string;
+    logPlaceholder.textContent = logPlaceholder.textContent + string;
   });
   bu.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
     var string = new TextDecoder("utf-8").decode(data);
-    console.log('>>>', string);
-    precode.textContent = precode.textContent + string;
+    logPlaceholder.textContent = logPlaceholder.textContent + string;
   });
   bu.on('close', (code) => {
     shell.beep();
-    console.log(`child process exited with code ${code}`);
-    precode.textContent = precode.textContent + `child process exited with code ${code}`;
+    logPlaceholder.textContent = logPlaceholder.textContent + `child process exited with code ${code}`;
   });
 }
 
-function build(i) {
-  cleanPre()
-  const bu = spawn('lerna.cmd', ['run', 'build', `--scope=${i}`]);
-  const precode = document.getElementsByClassName('precode')[0];
-  bu.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-    var string = new TextDecoder("utf-8").decode(data);
-    console.log('<<<', string);
-    precode.textContent = precode.textContent + string;
-  });
-  bu.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
-    var string = new TextDecoder("utf-8").decode(data);
-    console.log('>>>', string);
-    precode.textContent = precode.textContent + string;
-  });
-  bu.on('close', (code) => {
-    shell.beep();
-    console.log(`child process exited with code ${code}`);
-    precode.textContent = precode.textContent + `child process exited with code ${code}`;
-  });
-}
-
-function buildDown(i) {
-  cleanPre()
-  const bu = spawn('lerna.cmd', ['run', 'build', `--scope=${i}`, '--include-filtered-dependencies']);
-  const precode = document.getElementsByClassName('precode')[0];
-  bu.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-    var string = new TextDecoder("utf-8").decode(data);
-    console.log('<<<', string);
-    precode.textContent = precode.textContent + string;
-  });
-  bu.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
-    var string = new TextDecoder("utf-8").decode(data);
-    console.log('>>>', string);
-    precode.textContent = precode.textContent + string;
-  });
-  bu.on('close', (code) => {
-    shell.beep();
-    console.log(`child process exited with code ${code}`);
-    precode.textContent = precode.textContent + `child process exited with code ${code}`;
-  });
-}
-
-function cleanPre() {
-  const precode = document.getElementsByClassName('precode')[0];
+function cleanPre(index) {
+  const precode = document
+    .getElementsByClassName('packages-detail')[0]
+    .getElementsByClassName(`package-${index}`)[0]
+    .getElementsByClassName('precode')[0];
   precode.textContent = '';
 }
 
+
+function createButton(className, icon, text, packageName, index) {
+  const fns = {
+    'build-up': buildUp,
+    'build': build,
+    'build-down': buildDown,
+    'start': start
+  };
+  const b = createElement('button', `.${className}.btn.btn-default`, [createElement('span', `.icon.icon-text.${icon}`), createElement('span', '', [text])]);
+  b.addEventListener('click', () => fns[className](packageName, index));
+  return b;
+}
+
+function createButtonBar(name, index) {
+  return [
+    createButton('build-up', 'icon-up', 'Build up', name, index),
+    createButton('build', 'icon-database', 'Build', name, index),
+    createButton('build-down', 'icon-down', 'Build down', name, index),
+    createButton('start', 'icon-play', 'Start', name, index)
+
+  ];
+}
+
+function createPackageDetail(parent, name, index) {
+  parent.appendChild(createElement('div', `.package.package-${index}`, [
+    createElement('h4', '.package-name', [name]),
+    createElement('div', '.btn-group', createButtonBar(name, index)),
+    createElement('pre', '.precode')
+  ]));
+}
