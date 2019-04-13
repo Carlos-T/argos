@@ -31,7 +31,7 @@ function selectPackage(i, e) {
   if (currDetail) {
     currDetail.classList.remove('active');
   }
-  detail.querySelector(`package-${i}`).classList.add('active');
+  detail.getElementsByClassName(`package-${i}`)[0].classList.add('active');
 }
 
 function buildUp(package, index) {
@@ -75,7 +75,7 @@ function launchCommand(command, params, logPlaceholder) {
 }
 
 function cleanPre(index) {
-  const precode = document.getElementsByClassName(`.packages-detail .package-${index} .precode`);
+  const precode = document.querySelector(`.packages-detail .package-${index} .precode`);
   precode.textContent = '';
 }
 
